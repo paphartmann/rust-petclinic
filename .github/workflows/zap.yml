@@ -40,7 +40,7 @@ jobs:
           exit 1
 
       - name: Run OWASP ZAP baseline scan
-        uses: zaproxy/action-baseline@v0.14.0
+        uses: zaproxy/action-baseline@latest
         with:
           target: http://localhost:3000/owners
           allow_issue_writing: false
