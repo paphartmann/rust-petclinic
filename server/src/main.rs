@@ -223,12 +223,6 @@ struct Claims {
     sub: String,
 }
 
-#[derive(Debug, Serialize)]
-struct AuthBody {
-    access_token: String,
-    token_type: String,
-}
-
 #[derive(Debug, Deserialize, Serialize)]
 struct AuthPayload {
     user: String,
