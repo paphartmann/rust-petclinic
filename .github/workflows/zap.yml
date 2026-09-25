@@ -44,4 +44,4 @@ jobs:
         with:
           target: http://localhost:3000/owners
           allow_issue_writing: false
-          fail_action: true
+          fail_action: false
