@@ -2,7 +2,7 @@
 
 The `axum-routes.ql` diagnostic query lists method calls shaped like Axum route
 registrations: `.route(path, method(handler))`. It reports the path, HTTP
-method, and handler function.
+method, and handler function in a diagnostic message.
 
 The `axum-unprotected-mutations.ql` security query reports registered `POST`,
 `PUT`, `PATCH`, and `DELETE` routes whose handler does not use the `Claims`

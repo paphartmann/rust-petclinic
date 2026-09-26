@@ -1,7 +1,7 @@
 /**
  * @name Axum-style route registrations
  * @description Lists route paths, HTTP methods, and handler functions passed to route calls.
- * @kind table
+ * @kind diagnostic
  * @id local/axum-route-inventory
  */
 
@@ -12,8 +12,7 @@ from MethodCallExpr route, Call method
 where
   route.getIdentifier().getText() = "route" and
   method = route.getPositionalArgument(1)
-select
-  route,
-  route.getPositionalArgument(0).toString(),
-  method.getTargetName(),
-  method.getPositionalArgument(0).toString()
+select route,
+  "Route " + route.getPositionalArgument(0).toString() +
+    " uses HTTP method " + method.getTargetName() +
+    " with handler " + method.getPositionalArgument(0).toString() + "."
