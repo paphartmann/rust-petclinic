@@ -56,7 +56,7 @@ To run the dependency audit locally, install `cargo-audit` and run
 `cargo audit --file <path-to-Cargo.lock>` for each of `server/`, `client/`, and
 `dto/`. To run a DTO fuzzer locally, install nightly Rust and `cargo-fuzz`, then
 run `cargo +nightly fuzz run new_pet` or `cargo +nightly fuzz run owner` from
-the repository root.
+the `fuzz/` directory.
 
 ## Architecture
 

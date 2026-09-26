@@ -27,6 +27,8 @@ jobs:
 
       - name: Audit all Rust lockfiles
         run: |
-          cargo audit --file server/Cargo.lock
-          cargo audit --file client/Cargo.lock
-          cargo audit --file dto/Cargo.lock
+          status=0
+          for lockfile in server/Cargo.lock client/Cargo.lock dto/Cargo.lock; do
+            cargo audit --file "$lockfile" || status=1
+          done
+          exit "$status"
