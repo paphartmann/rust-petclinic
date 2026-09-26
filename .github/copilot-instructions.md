@@ -48,8 +48,15 @@ must be available because the client calls the API directly.
 ### Repository checks
 
 The pre-commit configuration runs the `gitleaks` hook. CI also runs Rust
-Semgrep, CodeQL, and an OWASP ZAP baseline scan against the `/owners`
-endpoint.
+Semgrep, CodeQL, an OWASP ZAP baseline scan against the `/owners` endpoint,
+`cargo-audit` against each Rust lockfile, and bounded `cargo-fuzz` runs against
+the shared DTO deserializers. The fuzz targets are in `fuzz/fuzz_targets/`.
+
+To run the dependency audit locally, install `cargo-audit` and run
+`cargo audit --file <path-to-Cargo.lock>` for each of `server/`, `client/`, and
+`dto/`. To run a DTO fuzzer locally, install nightly Rust and `cargo-fuzz`, then
+run `cargo +nightly fuzz run new_pet` or `cargo +nightly fuzz run owner` from
+the repository root.
 
 ## Architecture
 

@@ -1,0 +1,36 @@
+name: Cargo Fuzz
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: "45 2 * * 4"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz:
+    name: Fuzz ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [new_pet, owner]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install nightly Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: nightly
+
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz --locked
+
+      - name: Fuzz DTO deserialization
+        run: cargo fuzz run ${{ matrix.target }} -- -max_total_time=30

@@ -1,0 +1,30 @@
+[package]
+name = "rust-petclinic-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+dto = { path = "../dto" }
+libfuzzer-sys = "0.4"
+serde_json = "1.0"
+
+[[bin]]
+name = "new_pet"
+path = "fuzz_targets/new_pet.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "owner"
+path = "fuzz_targets/owner.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]
+members = ["."]
