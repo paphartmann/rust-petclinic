@@ -1,0 +1,4 @@
+name: local/axum-route-inventory
+version: 0.0.0
+dependencies:
+  codeql/rust-all: "*"
