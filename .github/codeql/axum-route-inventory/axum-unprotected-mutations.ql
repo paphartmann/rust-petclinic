@@ -23,8 +23,10 @@ where
     method.getTargetName() = "patch" or
     method.getTargetName() = "delete"
   ) and
-  handler.getName() = method.getPositionalArgument(0).toString() and
-  not handler.getText().matches("%Claims%") and
+  handler.getName().getText() = method.getPositionalArgument(0).toString() and
+  not exists(int i |
+    handler.getParam(i).getTypeRepr().toString().matches("%Claims%")
+  ) and
   route.getPositionalArgument(0).toString() != "\"/token\""
 select route,
   "Write route " + route.getPositionalArgument(0).toString() +
