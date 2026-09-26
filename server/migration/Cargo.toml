@@ -13,4 +13,4 @@ entity = { path = "../entity" }
 async-std = { version = "^1", features = ["attributes", "tokio1"] }
 
 [dependencies.sea-orm-migration]
-version = "^0.8.0"
+version = "^0.9.1"
