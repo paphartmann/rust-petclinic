@@ -5,7 +5,7 @@ use axum::{
     extract::{FromRequest, Path, RequestParts, TypedHeader},
     headers::{authorization::Bearer, Authorization},
     http::HeaderValue,
-    response::{IntoResponse, Response},
+    response::{IntoResponse, Redirect, Response},
     routing::{get, post},
     Extension, Json, Router,
 };
@@ -41,6 +41,7 @@ async fn main() {
 
 pub fn app(connection: DatabaseConnection) -> Router {
     Router::new()
+        .route("/", get(index))
         .route("/vets", get(vets_get))
         .route("/owners", get(owners_get))
         .route("/owners/:owner_id/pets/new", post(pet_create))
@@ -52,6 +53,10 @@ pub fn app(connection: DatabaseConnection) -> Router {
                 .allow_methods(Any),
         )
         .layer(ServiceBuilder::new().layer(Extension(connection)))
+}
+
+async fn index() -> Redirect {
+    Redirect::temporary("/owners")
 }
 
 async fn vets_get(
@@ -310,6 +315,7 @@ mod tests {
         let app = app(connection);
 
         let response = app
+            .clone()
             .oneshot(
                 Request::builder()
                     .uri("/owners")
@@ -328,6 +334,19 @@ mod tests {
         let first_owner = owner_list.get(0);
         assert!(first_owner.is_some());
         assert!(first_owner.unwrap().get("id").is_some());
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::TEMPORARY_REDIRECT);
+        assert_eq!(response.headers().get("location").unwrap(), "/owners");
     }
 
     #[tokio::test]

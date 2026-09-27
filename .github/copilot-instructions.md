@@ -48,18 +48,18 @@ must be available because the client calls the API directly.
 ### Repository checks
 
 The pre-commit configuration runs the `gitleaks` hook. CI also runs Rust
-Semgrep, CodeQL, an OWASP ZAP full scan starting at the `/owners` endpoint,
+Semgrep, CodeQL, an OWASP ZAP full scan starting at `/`,
 `cargo-audit` against each Rust lockfile, and bounded `cargo-fuzz` runs against
-the shared DTO deserializers and the web application's HTTP routes. The fuzz
-targets are in `fuzz/fuzz_targets/`.
+the shared DTO deserializers and the web application's HTTP routes. A single
+fuzz target covers both. The target is in `fuzz/fuzz_targets/`.
 
 To run the dependency audit locally, install `cargo-audit` and run
 `cargo audit --file <path-to-Cargo.lock>` for each of `server/`, `client/`, and
 `dto/`. To run a fuzzer locally, install nightly Rust and `cargo-fuzz`, then run a
 target such as `cargo +nightly fuzz run web_app --fuzz-dir fuzz` from the
 repository root. The `web_app` target exercises the Axum routes using a
-migrated in-memory database and deserializes the owners response as the client
-does.
+migrated in-memory database, fuzzes both shared DTO deserializers, and parses
+the owners response as the client does.
 
 ## Architecture
 
@@ -67,8 +67,9 @@ does.
   the `rust-petclinic`, `entity`, and `migration` crates.
 - `server/src/main.rs` wires routes, CORS, the database extension, JWT
   authentication, request/response DTO mapping, and the inline integration
-  tests. Current routes are `GET /owners`, `POST /owners/:owner_id/pets/new`,
-  `POST /token`, and authenticated `GET /vets`.
+  tests. Current routes are `GET /` (redirects to `/owners`), `GET /owners`,
+  `POST /owners/:owner_id/pets/new`, `POST /token`, and authenticated
+  `GET /vets`.
 - `server/entity/` contains SeaORM models and relations for owners, pets, pet
   types, vets, specialties, and the vet-specialty join table. The server maps
   these persistence models to API DTOs rather than exposing entity models

@@ -24,20 +24,6 @@ tower-http = { version = "0.3.4", features = ["cors"] }
 hyper = { version = "0.14.19", features = ["full"] }
 
 [[bin]]
-name = "new_pet"
-path = "fuzz_targets/new_pet.rs"
-test = false
-doc = false
-bench = false
-
-[[bin]]
-name = "owner"
-path = "fuzz_targets/owner.rs"
-test = false
-doc = false
-bench = false
-
-[[bin]]
 name = "web_app"
 path = "fuzz_targets/web_app.rs"
 test = false

@@ -14,12 +14,8 @@ permissions:
 
 jobs:
   fuzz:
-    name: Fuzz ${{ matrix.target }}
+    name: Fuzz web application
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        target: [new_pet, owner, web_app]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -33,4 +29,4 @@ jobs:
         run: cargo install cargo-fuzz --locked
 
       - name: Fuzz web application
-        run: cargo fuzz run ${{ matrix.target }} --fuzz-dir fuzz -- -max_total_time=30
+        run: cargo fuzz run web_app --fuzz-dir fuzz -- -max_total_time=30
