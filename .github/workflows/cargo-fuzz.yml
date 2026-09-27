@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [new_pet, owner]
+        target: [new_pet, owner, web_app]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -32,5 +32,5 @@ jobs:
       - name: Install cargo-fuzz
         run: cargo install cargo-fuzz --locked
 
-      - name: Fuzz DTO deserialization
+      - name: Fuzz web application
         run: cargo fuzz run ${{ matrix.target }} --fuzz-dir fuzz -- -max_total_time=30

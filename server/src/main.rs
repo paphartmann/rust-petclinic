@@ -27,6 +27,7 @@ use vet::Entity as Vet;
 static SECRET: &[u8] = b"2A82803BD110E4E06C94E581C559DFA";
 
 #[tokio::main]
+#[allow(dead_code)]
 async fn main() {
     let connection = Database::connect("sqlite::memory:").await.unwrap();
     Migrator::fresh(&connection).await.unwrap();
@@ -38,7 +39,7 @@ async fn main() {
         .unwrap();
 }
 
-fn app(connection: DatabaseConnection) -> Router {
+pub fn app(connection: DatabaseConnection) -> Router {
     Router::new()
         .route("/vets", get(vets_get))
         .route("/owners", get(owners_get))
@@ -132,7 +133,41 @@ async fn pet_create(
     Extension(ref conn): Extension<DatabaseConnection>,
     Path(owner_id): Path<i32>,
     Json(payload): Json<dto::NewPet>,
-) -> impl IntoResponse {
+) -> Result<StatusCode, (StatusCode, Json<serde_json::Value>)> {
+    if Owner::find_by_id(owner_id)
+        .one(conn)
+        .await
+        .map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({ "error": "Could not validate owner" })),
+            )
+        })?
+        .is_none()
+    {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "error": "Invalid owner id" })),
+        ));
+    }
+
+    if PetType::find_by_id(payload.kind_id)
+        .one(conn)
+        .await
+        .map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({ "error": "Could not validate pet type" })),
+            )
+        })?
+        .is_none()
+    {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "error": "Invalid pet type id" })),
+        ));
+    }
+
     pet::ActiveModel {
         name: Set(payload.name.to_owned()),
         birth_date: Set(payload.birth_date.to_owned()),
@@ -142,9 +177,14 @@ async fn pet_create(
     }
     .save(conn)
     .await
-    .expect("Coud not create pet");
+    .map_err(|_| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({ "error": "Could not create pet" })),
+        )
+    })?;
 
-    StatusCode::CREATED
+    Ok(StatusCode::CREATED)
 }
 
 async fn authorize(Json(payload): Json<AuthPayload>) -> Result<String, AuthError> {
@@ -302,13 +342,14 @@ mod tests {
 
         let new_pet = dto::NewPet {
             name: "Cat".to_owned(),
-            birth_date: Date::from_ymd(2015, 3, 15),
+            birth_date: Date::from_ymd_opt(2015, 3, 15).unwrap(),
             kind_id: 1,
         };
 
         let new_pet_string = serde_json::to_string(&new_pet).unwrap();
 
         let response = app
+            .clone()
             .oneshot(
                 Request::builder()
                     .method("POST")
@@ -330,6 +371,25 @@ mod tests {
 
         assert_eq!(new_pet_db.len(), 1);
         assert_eq!(new_pet_db.first().unwrap().owner_id, Some(1));
+
+        let invalid_pet = dto::NewPet {
+            name: "Invalid".to_owned(),
+            birth_date: Date::from_ymd_opt(2015, 3, 15).unwrap(),
+            kind_id: 0,
+        };
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .header("Content-Type", "application/json")
+                    .uri("/owners/1/pets/new")
+                    .body(Body::from(serde_json::to_string(&invalid_pet).unwrap()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
     }
 
     #[tokio::test]

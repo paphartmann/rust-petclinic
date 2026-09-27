@@ -8,9 +8,20 @@ edition = "2021"
 cargo-fuzz = true
 
 [dependencies]
+axum = { version = "0.5.6", features = ["headers"] }
+chrono = "0.4"
 dto = { path = "../dto" }
+entity = { path = "../server/entity" }
+jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"] }
 libfuzzer-sys = "0.4"
+migration = { path = "../server/migration" }
+sea-orm = { version = "0.8.0", features = ["runtime-tokio-native-tls", "sqlx-sqlite"] }
+serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+tokio = { version = "1.19.2", features = ["full"] }
+tower = "0.4.12"
+tower-http = { version = "0.3.4", features = ["cors"] }
+hyper = { version = "0.14.19", features = ["full"] }
 
 [[bin]]
 name = "new_pet"
@@ -22,6 +33,13 @@ bench = false
 [[bin]]
 name = "owner"
 path = "fuzz_targets/owner.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "web_app"
+path = "fuzz_targets/web_app.rs"
 test = false
 doc = false
 bench = false

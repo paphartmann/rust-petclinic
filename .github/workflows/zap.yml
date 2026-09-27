@@ -31,7 +31,7 @@ jobs:
       - name: Wait for API
         run: |
           for attempt in {1..30}; do
-            if curl --fail --silent http://127.0.0.1:3000/ >/dev/null; then
+            if curl --fail --silent http://127.0.0.1:3000/owners >/dev/null; then
               exit 0
             fi
             sleep 2
@@ -42,6 +42,6 @@ jobs:
       - name: Run OWASP ZAP full scan
         uses: zaproxy/action-full-scan@v0.13.0
         with:
-          target: http://localhost:3000/
+          target: http://localhost:3000/owners
           allow_issue_writing: false
           fail_action: false
