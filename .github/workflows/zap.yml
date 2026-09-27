@@ -22,10 +22,14 @@ jobs:
       - name: Install Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
 
+      - name: Build API
+        working-directory: server
+        run: cargo build --locked
+
       - name: Start API
         working-directory: server
         run: |
-          cargo run > /tmp/rust-petclinic.log 2>&1 &
+          ./target/debug/rust-petclinic > /tmp/rust-petclinic.log 2>&1 &
           echo $! > /tmp/rust-petclinic.pid
 
       - name: Wait for API
