@@ -30,3 +30,11 @@ jobs:
 
       - name: Fuzz web application
         run: cargo fuzz run web_app --fuzz-dir fuzz -- -max_total_time=30
+
+      - name: Upload fuzz crash artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-crashes
+          path: fuzz/artifacts/web_app/
+          if-no-files-found: ignore
