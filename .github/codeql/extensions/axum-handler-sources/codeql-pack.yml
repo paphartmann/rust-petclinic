@@ -1,0 +1,7 @@
+name: paphartmann/rust-petclinic-axum-models
+version: 0.0.1
+library: true
+extensionTargets:
+  codeql/rust-all: "*"
+dataExtensions:
+  - "*.model.yml"
