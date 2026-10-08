@@ -1,0 +1,209 @@
+openapi: 3.0.3
+info:
+  title: Rust Petclinic API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /owners:
+    get:
+      operationId: getOwners
+      summary: List owners and their pets
+      responses:
+        "200":
+          description: Owners returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Owner"
+  /owners/{owner_id}/pets/new:
+    post:
+      operationId: createPet
+      summary: Add a pet to an owner
+      parameters:
+        - name: owner_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewPet"
+      responses:
+        "201":
+          description: Pet created successfully
+        "400":
+          description: Owner or pet type ID is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /token:
+    post:
+      operationId: createToken
+      summary: Create an authentication token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthPayload"
+      responses:
+        "200":
+          description: Token created successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        "400":
+          description: Credentials are missing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /vets:
+    get:
+      operationId: getVets
+      summary: List veterinarians and their specialties
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Veterinarians returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Vet"
+        "400":
+          description: Authentication token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Owner:
+      type: object
+      required:
+        - id
+        - first_name
+        - last_name
+        - address
+        - city
+        - telephone
+        - pets
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        telephone:
+          type: string
+        pets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Pet"
+    Pet:
+      type: object
+      required:
+        - id
+        - name
+        - birth_date
+        - kind
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        birth_date:
+          type: string
+          format: date
+        kind:
+          $ref: "#/components/schemas/PetType"
+    PetType:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    NewPet:
+      type: object
+      required:
+        - name
+        - birth_date
+        - kind_id
+      properties:
+        name:
+          type: string
+        birth_date:
+          type: string
+          format: date
+        kind_id:
+          type: integer
+    AuthPayload:
+      type: object
+      required:
+        - user
+        - password
+      properties:
+        user:
+          type: string
+        password:
+          type: string
+          format: password
+    Vet:
+      type: object
+      required:
+        - id
+        - first_name
+        - last_name
+        - specialties
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        specialties:
+          type: array
+          items:
+            $ref: "#/components/schemas/Specialty"
+    Specialty:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string

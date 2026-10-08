@@ -48,7 +48,8 @@ must be available because the client calls the API directly.
 ### Repository checks
 
 The pre-commit configuration runs the `gitleaks` hook. CI also runs Rust
-Semgrep, CodeQL, an OWASP ZAP full scan starting at `/`,
+Semgrep, CodeQL, an OWASP ZAP full scan starting at `/` and an API scan using
+the OpenAPI definition in `.zap/openapi.yaml`,
 `cargo-audit` against each Rust lockfile, and bounded `cargo-fuzz` runs against
 the shared DTO deserializers and the web application's HTTP routes. A single
 fuzz target covers both. The target is in `fuzz/fuzz_targets/`.
